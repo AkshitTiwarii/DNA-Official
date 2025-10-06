@@ -5,6 +5,8 @@ import Team from '@/components/Team';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
+import ContentDisplay from '@/components/ContentDisplay';
+import { ActionCenter } from '@/components/ActionCenter';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -32,6 +34,14 @@ const Index = () => {
       <Navigation />
       <main className="relative z-10">
         <Hero />
+        
+        {/* Action Center Section */}
+        <section className="py-20 bg-gradient-to-b from-black via-gray-950 to-black">
+          <div className="container mx-auto px-6">
+            <ActionCenter />
+          </div>
+        </section>
+        
         <About />
         <Team />
         <Contact />

@@ -11,6 +11,8 @@ import {
   createRoutesFromElements,
   Outlet
 } from "react-router-dom";
+import { useState, useEffect } from "react";
+import LoadingScreen from "./components/LoadingScreen";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
 import Login from "./pages/Login";
@@ -26,13 +28,17 @@ import Rewards from "./pages/Rewards";
 import Internships from "./pages/Internships";
 import Hackathons from "./pages/Hackathons";
 import JobOpenings from "./pages/JobOpenings";
-import FreeResources from "./pages/FreeResources";
 import Mentorship from "./pages/Mentorship";
 import Workshops from "./pages/Workshops";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminSetup from "./pages/AdminSetup";
+import ContentPage from "./pages/ContentPage";
+import RoadmapPage from "./pages/RoadmapPage";
 
 const queryClient = new QueryClient();
 
 import { UserProvider } from './contexts/user-context';
+import { AdminProvider } from './contexts/admin-context';
 
 import MobileNav from './components/MobileNav';
 
@@ -64,11 +70,22 @@ const router = createBrowserRouter(
       <Route path="/internships" element={<Internships />} />
       <Route path="/hackathons" element={<Hackathons />} />
       <Route path="/job-openings" element={<JobOpenings />} />
-      <Route path="/free-resources" element={<FreeResources />} />
+      <Route path="/free-resources" element={<ContentPage />} />
       <Route path="/mentorship" element={<Mentorship />} />
       <Route path="/workshops" element={<Workshops />} />
+      <Route path="/content" element={<ContentPage />} />
+      <Route path="/roadmap/:roadmapId" element={<RoadmapPage />} />
       <Route path="/projects" element={<Projects />} />
       <Route path="/dna-osci" element={<DNAxOSCI />} />
+      <Route path="/admin-setup" element={<AdminSetup />} />
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
       <Route 
         path="/rewards" 
         element={
@@ -83,16 +100,27 @@ const router = createBrowserRouter(
   )
 );
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <UserProvider>
-        <Toaster />
-        <Sonner />
-        <RouterProvider router={router} />
-      </UserProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+  };
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <UserProvider>
+          <AdminProvider>
+            {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
+            <Toaster />
+            <Sonner />
+            <RouterProvider router={router} />
+          </AdminProvider>
+        </UserProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

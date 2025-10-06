@@ -1,21 +1,28 @@
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Settings, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/lib/store';
+import { useAdmin } from '@/contexts/admin-context';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 export const UserAvatar = () => {
   const { user, logout } = useStore();
+  const { isAdmin } = useAdmin();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+  };
+
+  const handleAdminAccess = () => {
+    navigate('/admin');
   };
 
   // Get user's name or email for display
@@ -33,6 +40,20 @@ export const UserAvatar = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
+        {isAdmin && (
+          <>
+            <DropdownMenuItem onClick={handleAdminAccess}>
+              <Shield className="w-4 h-4 mr-2" />
+              Admin Panel
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        <DropdownMenuItem>
+          <Settings className="w-4 h-4 mr-2" />
+          Settings
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="w-4 h-4 mr-2" />
           Logout

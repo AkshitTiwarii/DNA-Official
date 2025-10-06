@@ -1,11 +1,31 @@
-import { Briefcase, Code2, Trophy, BookOpen, Users, Clock, MapPin, ArrowLeft, Wrench, Sparkles } from 'lucide-react';
+import { Briefcase, Code2, Trophy, BookOpen, Users, Clock, MapPin, ArrowLeft, Wrench, Sparkles, ExternalLink, Tag, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
+import { useState, useEffect } from 'react';
+import { getPublishedContent } from '@/lib/admin';
+import { ContentItem } from '@/types/admin';
 
 const Opportunities = () => {
+  const [opportunities, setOpportunities] = useState<ContentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadOpportunities = async () => {
+      try {
+        const data = await getPublishedContent('opportunity');
+        setOpportunities(data);
+      } catch (error) {
+        console.error('Error loading opportunities:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOpportunities();
+  }, []);
   const sections = [
     {
       icon: Briefcase,
@@ -33,7 +53,7 @@ const Opportunities = () => {
       title: 'Free Resources',
       description: 'Learning materials and study guides',
       color: 'orange',
-      path: '/free-resources'
+      path: '/content'
     },
     {
       icon: Users,
@@ -208,6 +228,115 @@ const Opportunities = () => {
               );
             })}
           </div>
+
+          {/* Live Opportunities Section */}
+          {opportunities.length > 0 && (
+            <div className="mb-16">
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold mb-4">
+                  Latest <span className="text-green-400">Opportunities</span>
+                </h2>
+                <p className="text-xl text-muted-foreground">Explore current openings and career paths</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                {opportunities.map((opportunity) => (
+                  <div
+                    key={opportunity.id}
+                    className="bg-[#111111] border border-green-400/30 rounded-xl p-6 hover:border-green-400 hover:scale-105 transition-all duration-300"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <Briefcase className="h-6 w-6 text-green-400" />
+                        <h3 className="text-lg font-bold text-white">
+                          {opportunity.title}
+                        </h3>
+                      </div>
+                      {opportunity.featured && (
+                        <div className="px-2 py-1 bg-yellow-400/20 border border-yellow-400/30 rounded-full">
+                          <span className="text-xs font-semibold text-yellow-400">Featured</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {opportunity.company && (
+                      <div className="flex items-center gap-2 mb-3 text-blue-400">
+                        <Users className="h-4 w-4" />
+                        <span className="text-sm font-medium">{opportunity.company}</span>
+                      </div>
+                    )}
+
+                    <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                      {opportunity.content}
+                    </p>
+
+                    {opportunity.deadline && (
+                      <div className="flex items-center gap-2 mb-3 text-red-400">
+                        <Clock className="h-4 w-4" />
+                        <span className="text-sm">Apply by: {new Date(opportunity.deadline).toLocaleDateString()}</span>
+                      </div>
+                    )}
+
+                    {opportunity.difficulty && (
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          opportunity.difficulty === 'beginner' ? 'bg-green-400/20 text-green-400' :
+                          opportunity.difficulty === 'intermediate' ? 'bg-yellow-400/20 text-yellow-400' :
+                          'bg-red-400/20 text-red-400'
+                        }`}>
+                          {opportunity.difficulty.charAt(0).toUpperCase() + opportunity.difficulty.slice(1)}
+                        </div>
+                      </div>
+                    )}
+
+                    {opportunity.tags && opportunity.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {opportunity.tags.map((tag, index) => (
+                          <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-800/50 rounded-full">
+                            <Tag className="h-3 w-3 text-green-400" />
+                            <span className="text-xs text-gray-300">{tag}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {opportunity.external_url && (
+                      <Button
+                        className="w-full bg-green-400 hover:bg-green-500 text-black font-medium"
+                        asChild
+                      >
+                        <a href={opportunity.external_url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Apply Now
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-16">
+              <div className="w-8 h-8 border-4 border-green-400/30 border-t-green-400 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-400">Loading opportunities...</p>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && opportunities.length === 0 && (
+            <div className="text-center py-16 mb-16">
+              <div className="w-20 h-20 bg-green-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Briefcase className="h-10 w-10 text-green-400" />
+              </div>
+              <h3 className="text-2xl font-semibold text-green-400 mb-4">No Active Opportunities</h3>
+              <p className="text-gray-400 mb-6">
+                Check back soon for new job openings and career opportunities!
+              </p>
+            </div>
+          )}
 
           {/* Call to Action */}
           <div className="text-center">
